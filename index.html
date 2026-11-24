@@ -11,7 +11,7 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="WODGrind">
 <meta name="application-name" content="WODGrind">
-<!-- WODGrind 0.2.3: built by tools/build.py from src/app.html -->
+<!-- WODGrind 0.2.4: built by tools/build.py from src/app.html -->
 <style>
 /* same look as RepGrind */
 :root{--bg:#111418;--card:#1b2027;--line:#2a313b;--txt:#e9edf2;--mut:#8a95a3;--acc:#ff8c00;--ink:#14171c;--acc2:#3fb6ff;--ok:#3ccf7a;--warn:#ffc53d}
@@ -102,7 +102,8 @@ input.code{width:110px;text-transform:uppercase;letter-spacing:6px;font-weight:8
 #clock.done{background:#0c2014}#clock.done .tc{color:var(--ok)}#clock.done .pb .fill{background:var(--ok)}
 #clock.wait .tc{color:var(--txt)}
 #clock.flash{background:#3a2200}
-#sndTap{position:absolute;inset:0;background:rgba(0,0,0,.72);color:#fff;font-size:24px;font-weight:800;border-radius:0;display:none;padding:30px;text-align:center}
+#sndTap{position:absolute;left:16px;right:16px;bottom:calc(92px + env(safe-area-inset-bottom));background:var(--acc);color:var(--ink);font-size:18px;font-weight:800;border-radius:12px;display:none;padding:14px;text-align:center}
+#clock .ctag.warn{background:#b3261e;color:#fff}
 #sndTap.on{display:flex}
 @media (orientation:landscape) and (max-height:520px){
   #clock .tc{font-size:min(24vw,50vh)}#clock .tc.s{font-size:min(34vw,54vh)}
@@ -236,7 +237,7 @@ ${nt}`;Ze.test(B)&&(We(j),j=setTimeout(Ce,Ru),Xe(j))},Oe=()=>{h.iceGatheringStat
 </script>
 <script>
 "use strict";
-const VERSION = "0.2.3";
+const VERSION = "0.2.4";
 
 /* ================= texts ================= */
 const TX = {
@@ -254,7 +255,7 @@ const TX = {
     pause:"Pause", resume:"Resume", stop:"Stop", stopAgain:"Tap again", back:"Back", again:"Again", leave:"Leave",
     getReady:"Get ready", workP:"Work", restP:"Rest", paused:"Paused", done:"Finish", interval:"Interval", round:"Round", left:"left", cap2:"cap",
     waiting:"Waiting for the coach", waitSub:"The clock starts when the coach presses Start.",
-    lost:"Connection to the coach lost – the clock keeps running", sndTap:"Tap to turn on the sound",
+    lost:"Connection to the coach lost – the clock keeps running", noCoach:"no connection", sndTap:"Tap to turn on the sound",
     sound:"Sound", voice:"Voice cues (female voice)", beep:"Beeps",
     voiceNote:"Says 5-4-3-2-1, Go, Rest, rounds, minutes left and Finish in the app language. On iPhone turn off silent mode.",
     test:"Test sound", cd:"Start countdown", help:"Help", helpLink:"Open the guide",
@@ -289,7 +290,7 @@ const TX = {
     pause:"Tauko", resume:"Jatka", stop:"Lopeta", stopAgain:"Paina uudelleen", back:"Takaisin", again:"Uudelleen", leave:"Poistu",
     getReady:"Valmistaudu", workP:"Työ", restP:"Lepo", paused:"Tauko", done:"Valmis", interval:"Jakso", round:"Kierros", left:"jäljellä", cap2:"aikaraja",
     waiting:"Odotetaan valmentajaa", waitSub:"Kello käynnistyy, kun valmentaja painaa Aloita.",
-    lost:"Yhteys valmentajaan katkesi – kello jatkaa käyntiä", sndTap:"Kosketa, niin äänet tulevat päälle",
+    lost:"Yhteys valmentajaan katkesi – kello jatkaa käyntiä", noCoach:"ei yhteyttä", sndTap:"Kosketa, niin äänet tulevat päälle",
     sound:"Äänet", voice:"Puhutut vihjeet (naisääni)", beep:"Äänimerkit",
     voiceNote:"Sanoo 5-4-3-2-1, Nyt, Lepo, kierrokset, jäljellä olevat minuutit ja Valmis sovelluksen kielellä. iPhonessa äänetön tila pois.",
     test:"Testaa ääni", cd:"Aloituslaskenta", help:"Ohje", helpLink:"Avaa käyttöohje",
@@ -449,7 +450,9 @@ const now=()=>Date.now()+(R.role==="athlete"?R.offset:0);   // athletes run on t
 let wl=null;
 async function awake(){ try{ if("wakeLock" in navigator&&!wl){ wl=await navigator.wakeLock.request("screen"); wl.addEventListener("release",()=>wl=null);} }catch(e){} }
 function sleepOk(){ try{ wl&&wl.release(); }catch(e){} wl=null; }
-document.addEventListener("visibilitychange",()=>{ if(document.visibilityState==="visible"&&R.on) awake(); });
+document.addEventListener("visibilitychange",()=>{ if(document.visibilityState!=="visible") return;
+  if(R.on) awake();
+  if(typeof Wod!=="undefined"&&Wod.net){ if(Wod.role==="coach") Wod.publish(); else if(Wod.role==="athlete") Wod.net.send("hello",{app:"wodgrind",v:1,aid:Wod.aid}); } });
 const elapsed=()=>R.running?(now()-R.base)/1000:R.pausedEl;
 function locate(e){ let acc=0; for(let i=0;i<R.plan.length;i++){ const s=R.plan[i];
   if(s.d===null||e<acc+s.d) return {s,idx:i,inSeg:e-acc}; acc+=s.d; } return null; }
@@ -477,8 +480,10 @@ function startWorkout(){
 $("bStart").onclick=startWorkout;
 
 function setCls(c){ const el=$("clock"); if(el.dataset.c!==c){ el.dataset.c=c; el.className="on "+c; } }
+function athTag(){ if(R.role!=="athlete") return; const tg=$("cTag"), w=!!Wod.lost; tg.classList.toggle("warn",w); tg.textContent="WOD "+Wod.code+(w?" ⚠ "+t("noCoach"):""); }
 function tick(){
   if(!R.on) return;
+  athTag();
   if(R.wait){ drawWait(); return; }
   if(R.done||!R.plan) return;
   const e=elapsed(), L=locate(e);
@@ -491,7 +496,7 @@ function tick(){
     ph=s.k==="rest"?t("restP"):t("workP");
     if(m==="up"){ big=fmt(inSeg); if(s.d){ sub=`${t("cap2")} ${fmt(s.d)}`; prog=inSeg/s.d; } }
     else if(m==="emom"){ big=s.d<=60?String(secLeft):fmt(secLeft); if(s.d<=60) size="s"; sub=`${t("interval")} ${s.i+1} / ${s.n}`; tr=fmt(wE); prog=wE/R.total; }
-    else if(m==="tabata"){ big=String(secLeft); size="s"; sub=`${t("round")} ${s.i+1} / ${s.n}`; tr=fmt(Math.max(0,R.total-wE))+" "+t("left"); prog=wE/R.total; }
+    else if(m==="tabata"){ big=s.d>60?fmt(secLeft):String(secLeft); if(s.d<=60) size="s"; sub=`${t("round")} ${s.i+1} / ${s.n}`; tr=fmt(Math.max(0,R.total-wE))+" "+t("left"); prog=wE/R.total; }
     else { big=fmt(secLeft); prog=inSeg/s.d; tr=fmt(inSeg); }
   }
   let cls = s.k==="cd"?"cd":s.k;
@@ -500,6 +505,7 @@ function tick(){
   setCls(cls);
   $("cPhase").textContent=ph; const b=$("cBig"); b.textContent=big; b.className="tc"+(size?" "+size:"");
   $("cSub").textContent=sub; $("cTL").textContent=modeTitle(R.cfg); $("cTR").textContent=tr;
+
   $("cFill").style.width=Math.min(100,Math.max(0,prog*100))+"%";
   if(R.running) cues(s,idx,inSeg,secLeft);
 }
@@ -567,7 +573,9 @@ $("cStop").onclick=()=>{
   const L=locate(elapsed());
   if(R.cfg.mode==="up"&&L&&L.s.k==="work") finish(true); else { closeClock(); Wod.publish(); }
 };
+// browsers allow sound only after the page has been touched: any touch on the clock turns it on
 $("sndTap").onclick=()=>{ unlockAudio(); $("sndTap").classList.remove("on"); };
+$("clock").addEventListener("pointerdown",()=>{ if($("sndTap").classList.contains("on")){ unlockAudio(); $("sndTap").classList.remove("on"); } },true);
 
 /* ================= WOD Code =================
    Same method as RepGrind: phones connect directly to each other (WebRTC), found through free
@@ -647,7 +655,8 @@ const Wod={
       else if(this.role==="athlete"){
         if(!this.coachPeer) n.send("hello",{app:"wodgrind",v:1,aid:this.aid});
         else n.send("ping",{t:Date.now()},this.coachPeer);
-        if(this.lastSt&&Date.now()-this.lastSt>15000&&!this.lost){ this.lost=true; if(R.wait) drawWait(); }
+        // nothing from the coach for 12 s: warn and rejoin the room (the clock keeps running meanwhile)
+        if(this.lastSt&&Date.now()-this.lastSt>12000){ const keep=Date.now(); this.connect(this.code,"athlete"); this.lastSt=keep; this.lost=true; if(R.wait) drawWait(); }
       }
     }, role==="coach"?5000:1500);
     renderWod(); return true;
@@ -720,6 +729,8 @@ function renderWod(){
 /* ================= What's new and update notice (as in RepGrind) =================
    NEWS: newest first, [version, English lines, Finnish lines]. Keep it in step with CHANGELOG.md. */
 const NEWS=[
+  ["0.2.4",["Tabata and EMOM intervals longer than a minute show minutes and seconds (2:49, not 169).","The sound prompt (shown when you join from an invite link) is a small button below the clock; any touch on the clock turns the sound on.","Athlete phones show a warning if the connection to the coach drops, and rejoin by themselves."],
+           ["Yli minuutin Tabata- ja EMOM-jaksot näytetään minuutteina ja sekunteina (2:49, ei 169).","Äänikehote (kun liityt kutsulinkistä) on pieni painike kellon alla; mikä tahansa kosketus kelloon kytkee äänet päälle.","Urheilijan puhelin varoittaa, jos yhteys valmentajaan katkeaa, ja liittyy uudelleen itse."]],
   ["0.2.3",["WOD Code fix: uses a fixed list of 10 relays (same as RepGrind), and the athlete phone keeps calling the coach until it answers.","The athlete screen shows when it is still looking for the coach's phone."],["WOD-koodin korjaus: käyttää kiinteää 10 välityspalvelimen listaa (sama kuin RepGrind), ja urheilijan puhelin kutsuu valmentajaa, kunnes tämä vastaa.","Urheilijan näyttö kertoo, kun valmentajan puhelinta vielä etsitään."]],
   ["0.2.2",["Count up: the time cap takes seconds too, e.g. cap 8:30."],["Ylös: aikarajaan voi asettaa myös sekunnit, esim. aikaraja 8:30."]],
   ["0.2.1",["AMRAP takes seconds too, e.g. AMRAP 7:30."],["AMRAPiin voi asettaa myös sekunnit, esim. AMRAP 7:30."]],
