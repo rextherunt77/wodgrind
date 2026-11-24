@@ -1,0 +1,27 @@
+<!DOCTYPE html><html lang="fi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>WODGrind – ohje</title>
+<style>body{font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:#111418;color:#e8eaed;max-width:720px;margin:0 auto;padding:16px 18px 48px;line-height:1.55}h1{font-size:24px;color:#ff8c00;margin:8px 0 12px}h2{font-size:18px;margin:26px 0 8px;border-top:1px solid #262c35;padding-top:18px}b{color:#fff}table{border-collapse:collapse;width:100%;font-size:14px;margin:8px 0}th,td{text-align:left;padding:7px 8px;border-bottom:1px solid #262c35;vertical-align:top}th{color:#8a929c;font-weight:600}a{color:#ff8c00}li{margin:3px 0}.top{display:flex;justify-content:space-between;font-size:14px}</style></head>
+<body><div class="top"><a href="../">← WODGrind</a><a href="en.html">In English</a></div><h1>WODGrind – käyttöohje</h1>
+<p>WODGrind on treeniajastin valmentajille. Se toimii puhelimen selaimessa: avaa se kerran ja valitse <b>Jaa → Lisää Koti-valikkoon</b>. Ensimmäisen käynnin jälkeen se toimii myös ilman nettiä (WOD-koodi tarvitsee netin).</p>
+<h2>Ajastimet</h2>
+<table><tr><th>Ajastin</th><th>Asetat</th><th>Mitä tapahtuu</th></tr>
+<tr><td><b>Ylös</b></td><td>aikaraja minuutteina (valinnainen)</td><td>Kello laskee ylöspäin nollasta. Aikarajalla se pysähtyy itsestään ja sanoo <i>Aika loppui</i>. Ilman aikarajaa paina Lopeta kahdesti, kun urheilijat ovat valmiita; kello näyttää loppuajan.</td></tr>
+<tr><td><b>Alas</b></td><td>minuutit ja sekunnit</td><td>Tavallinen alaslaskenta, minuuttikuulutukset ja <i>Valmis</i> nollassa.</td></tr>
+<tr><td><b>EMOM</b></td><td>kokonaisminuutit, joka N. minuutti</td><td>Pitkä piippaus ja <i>Kierros 2, Kierros 3…</i> jokaisen jakson alussa, lyhyet piippaukset sen 3 viimeisellä sekunnilla. Joka 2. minuutti = E2MOM.</td></tr>
+<tr><td><b>AMRAP</b></td><td>minuutit</td><td>Laskee alaspäin. Sanoo puolivälin, jäljellä olevat minuutit, minuutin, 30 ja 10 sekuntia ja <i>Valmis</i>.</td></tr>
+<tr><td><b>Tabata</b></td><td>työ s, lepo s, kierrokset</td><td>Pitkä piippaus = työ, kaksoispiippaus = lepo, lyhyet piippaukset 3 viimeisellä sekunnilla. Sanoo <i>Viimeinen kierros</i>. Perinteinen Tabata on 20 / 10 × 8.</td></tr></table>
+<p>Jokainen ajastin alkaa aloituslaskennalla (5 s, muuta Asetuksissa), joka sanotaan 5-4-3-2-1. Kello täyttää näytön ja pitää näytön päällä. Käännä puhelin vaakaan, niin numerot ovat isompia.</p>
+<ul><li><b>Tauko</b> pysäyttää kellon, <b>Jatka</b> jatkaa.</li><li><b>Lopeta</b> vaatii kaksi painallusta, ettei vahingossa osuminen lopeta treeniä.</li><li>Värit: keltaiset numerot = aloituslaskenta, valkoiset = työ, oranssit = 3 viimeistä sekuntia, sininen = lepo, vihreä = valmis.</li></ul>
+<h2>WOD-koodi – kello urheilijoiden puhelimiin</h2>
+<ol><li>Valmentaja: <b>WOD-koodi → Luo WOD-koodi (olen valmentaja)</b>. Näkyviin tulee 4-merkkinen koodi, myös näytön yläreunaan.</li>
+<li>Urheilijat: avaa WODGrind → <b>WOD-koodi</b>, kirjoita koodi ja paina <b>Liity</b>. Tai lähetä kutsu <b>Jaa kutsu</b> -painikkeella.</li>
+<li>Valmentaja valitsee ajastimen ja painaa <b>Aloita</b>. Kaikki puhelimet näyttävät saman kellon sekunnilleen ja antavat piippaukset ja puhutut vihjeet omalla kielellään.</li></ol>
+<ul><li>Tauko, jatko ja lopetus valmentajan puhelimesta menevät kaikille. Myöhässä liittyvä saa käynnissä olevan kellon heti.</li>
+<li>Jokainen puhelin pyörittää kelloa itse, joten lyhyt katkos yhteydessä ei pysäytä sitä.</li>
+<li>Tabletti tai TV:n selain voi liittyä samalla tavalla ja näyttää kellon koko salille.</li>
+<li>Puhelimet yhdistävät suoraan toisiinsa (WebRTC). Ilmaiset julkiset Nostr-välityspalvelimet auttavat vain löytämään toisensa – sama tapa kuin RepGrindissä. Ei tilejä, mitään ei tallenneta palvelimelle. Jotkin tiukat yritys- tai koulu-Wi-Fit estävät tämän; mobiilidata toimii.</li>
+<li><b>Lopeta WOD-koodi</b> palauttaa kaikki omaan ajastimeensa.</li></ul>
+<h2>Äänet</h2>
+<ul><li>Asetukset → Äänet: puhutut vihjeet (naisääni, jos puhelimessa on sellainen) ja piippaukset voi kytkeä pois erikseen. Puhe seuraa sovelluksen kieltä.</li>
+<li>iPhone: kytke äänetön tila pois ja kosketa näyttöä kerran WOD-koodiin liittymisen jälkeen (selaimet sallivat äänen vasta kosketuksen jälkeen).</li>
+<li>Bluetooth-kaiuttimet toimivat: puhelimen ääni menee niihin normaalisti.</li></ul>
+</body></html>
