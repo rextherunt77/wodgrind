@@ -11,7 +11,7 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="WODGrind">
 <meta name="application-name" content="WODGrind">
-<!-- WODGrind 0.2.2: built by tools/build.py from src/app.html -->
+<!-- WODGrind 0.2.3: built by tools/build.py from src/app.html -->
 <style>
 /* same look as RepGrind */
 :root{--bg:#111418;--card:#1b2027;--line:#2a313b;--txt:#e9edf2;--mut:#8a95a3;--acc:#ff8c00;--ink:#14171c;--acc2:#3fb6ff;--ok:#3ccf7a;--warn:#ffc53d}
@@ -236,7 +236,7 @@ ${nt}`;Ze.test(B)&&(We(j),j=setTimeout(Ce,Ru),Xe(j))},Oe=()=>{h.iceGatheringStat
 </script>
 <script>
 "use strict";
-const VERSION = "0.2.2";
+const VERSION = "0.2.3";
 
 /* ================= texts ================= */
 const TX = {
@@ -266,7 +266,7 @@ const TX = {
     wIntro:"Athletes follow this clock on their own phones – at the ski ergs, the rower or across the gym. A tablet or TV can join the same way.",
     wCreate:"Create WOD Code (I'm the coach)", wCodePh:"Code", wJoin:"Join",
     wCoach:"Athletes: open WODGrind → WOD Code, type this code and tap Join.",
-    wShare:"Share invite", wEnd:"End WOD Code", wConnecting:"Connecting to the relays…",
+    wShare:"Share invite", wEnd:"End WOD Code", wConnecting:"Connecting to the relays…", wFinding:"Looking for the coach's phone…",
     wPeers:n=> n===0 ? "No one has joined yet." : n===1 ? "1 phone connected." : `${n} phones connected.`,
     wBad:"Type the 4-character code.", wRelay:"Could not reach the relays. Check the internet connection.",
     wNoP2P:"WOD Code is not available in this browser.", copied:"Invite copied",
@@ -300,7 +300,7 @@ const TX = {
     wIntro:"Urheilijat seuraavat tätä kelloa omilla puhelimillaan – hiihtolaitteilla, soutulaitteella tai salin toisella puolella. Tabletti tai TV liittyy samalla tavalla.",
     wCreate:"Luo WOD-koodi (olen valmentaja)", wCodePh:"Koodi", wJoin:"Liity",
     wCoach:"Urheilijat: avaa WODGrind → WOD-koodi, kirjoita tämä koodi ja paina Liity.",
-    wShare:"Jaa kutsu", wEnd:"Lopeta WOD-koodi", wConnecting:"Yhdistetään välityspalvelimiin…",
+    wShare:"Jaa kutsu", wEnd:"Lopeta WOD-koodi", wConnecting:"Yhdistetään välityspalvelimiin…", wFinding:"Etsitään valmentajan puhelinta…",
     wPeers:n=> n===0 ? "Kukaan ei ole vielä liittynyt." : n===1 ? "1 puhelin yhdistetty." : `${n} puhelinta yhdistetty.`,
     wBad:"Kirjoita 4-merkkinen koodi.", wRelay:"Välityspalvelimiin ei saatu yhteyttä. Tarkista nettiyhteys.",
     wNoP2P:"WOD-koodi ei toimi tässä selaimessa.", copied:"Kutsu kopioitu",
@@ -506,7 +506,7 @@ function tick(){
 function drawWait(){
   setCls("wait"); $("cPhase").textContent=t("waiting");
   const b=$("cBig"); b.className="tc xs"; b.textContent=R.cfg?modeTitle(R.cfg):"…";
-  $("cSub").textContent=Wod.lost?t("lost"):t("waitSub"); $("cTL").textContent=""; $("cTR").textContent=""; $("cFill").style.width="0%";
+  $("cSub").textContent=Wod.err?Wod.err:Wod.lost?t("lost"):(Wod.coachPeer?t("waitSub"):t("wFinding")); $("cTL").textContent=""; $("cTR").textContent=""; $("cFill").style.width="0%";
 }
 const once=(k,f)=>{ if(!R.cued.has(k)){ R.cued.add(k); f(); } };
 function flash(){ const c=$("clock"); c.classList.add("flash"); setTimeout(()=>c.classList.remove("flash"),140); }
@@ -576,104 +576,122 @@ $("sndTap").onclick=()=>{ unlockAudio(); $("sndTap").classList.remove("on"); };
    On joining, an athlete gets the current state at once and measures the time difference to the
    coach's phone (ping), so all clocks show the same second.
    Test without internet: open the app with ?net=local in two tabs of the same browser. */
+// Trystero picks only 5 of its relays from the app ID, and one bad pick means phones never meet.
+// RepGrind and WODGrind use this same fixed list of 10 (all from Trystero's own tested list).
+const RELAYS=["wss://relay.primal.net","wss://relay.nostr.net","wss://relay.snort.social","wss://nostr-pub.wellorder.net","wss://relay.ditto.pub",
+  "wss://relay.angor.io","wss://relay.nostrhub.fr","wss://nostr-01.yakihonne.com","wss://nostr.hifish.org","wss://fanfares.nostr1.com"];
 const APP_ID="wodgrind-wodcode-v1", CODE_CH="ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
 const newCode=()=>{ const a=new Uint32Array(4); crypto.getRandomValues(a); return [...a].map(x=>CODE_CH[x%CODE_CH.length]).join(""); };
 
-// transport: Trystero, or a BroadcastChannel stand-in for testing in one browser
+// transport: Trystero, or a BroadcastChannel stand-in for testing in one browser.
+// Both give: send(action,data,to?), on(action,f(data,peer)), onJoin, onLeave, onErr, leave.
+const ACTIONS=["hello","st","ping","pong"];
 function netJoin(code){
   const local=new URLSearchParams(location.search).get("net")==="local";
   if(local){
-    const me=Math.random().toString(36).slice(2,9), bc=new BroadcastChannel("wg-"+code), h={st:[],join:[],leave:[]};
-    const peers=new Set();
+    const me=Math.random().toString(36).slice(2,9), bc=new BroadcastChannel("wg-"+code), h={join:[],leave:[]}, on={};
+    const peers=new Set(); let open=true;
+    const post=m=>{ if(open) try{ bc.postMessage(m); }catch(e){} };
     bc.onmessage=({data:m})=>{ if(m.to&&m.to!==me) return;
-      if(m.k==="hi"){ if(!peers.has(m.from)){ peers.add(m.from); h.join.forEach(f=>f(m.from)); bc.postMessage({k:"hi",from:me,to:m.from}); } }
+      if(m.k==="hi"){ if(!peers.has(m.from)){ peers.add(m.from); h.join.forEach(f=>f(m.from)); post({k:"hi",from:me,to:m.from}); } }
       else if(m.k==="bye"){ peers.delete(m.from); h.leave.forEach(f=>f(m.from)); }
-      else if(m.k==="st") h.st.forEach(f=>f(m.d,m.from));
-      else if(m.k==="ping") bc.postMessage({k:"pong",from:me,to:m.from,id:m.id,d:Date.now()});
-      else if(m.k==="pong"&&pend[m.id]){ pend[m.id](m.d); delete pend[m.id]; } };
-    const pend={}; let open=true; const post=bc.postMessage.bind(bc); bc.postMessage=m=>{ if(open) try{ post(m); }catch(e){} };
-    setTimeout(()=>bc.postMessage({k:"hi",from:me}),50);
-    addEventListener("pagehide",()=>bc.postMessage({k:"bye",from:me}));
-    return { sendSt:(d,to)=>bc.postMessage({k:"st",from:me,to,d}), onSt:f=>h.st.push(f), onJoin:f=>h.join.push(f), onLeave:f=>h.leave.push(f),
-      ping:to=>new Promise(r=>{ const id=Math.random(); pend[id]=r; bc.postMessage({k:"ping",from:me,to,id}); setTimeout(()=>{ if(pend[id]){ delete pend[id]; r(null);} },2000); }),
-      count:()=>peers.size, onErr:()=>{}, leave:()=>{ bc.postMessage({k:"bye",from:me}); open=false; bc.close(); } };
+      else if(m.k==="a"&&on[m.a]) on[m.a].forEach(f=>f(m.d,m.from)); };
+    setTimeout(()=>post({k:"hi",from:me}),50);
+    addEventListener("pagehide",()=>post({k:"bye",from:me}));
+    return { send:(a,d,to)=>post({k:"a",a,from:me,to,d}), on:(a,f)=>(on[a]=on[a]||[]).push(f),
+      onJoin:f=>h.join.push(f), onLeave:f=>h.leave.push(f), onErr:()=>{},
+      leave:()=>{ post({k:"bye",from:me}); open=false; bc.close(); } };
   }
   if(!window.Trystero||!window.RTCPeerConnection) throw new Error("nop2p");
-  const room=Trystero.joinRoom({appId:APP_ID, password:"wg-"+code}, "wod-"+code);
-  const st=room.makeAction("st"), png=room.makeAction("ping",{kind:"request"});
-  png.onRequest(()=>Date.now());
-  return { sendSt:(d,to)=>st.send(d,to?{target:to}:undefined).catch(()=>{}), onSt:f=>st.onMessage((d,c)=>f(d,c.peerId)),
-    onJoin:f=>room.onPeerJoin(c=>f(c.peerId)), onLeave:f=>room.onPeerLeave(c=>f(c.peerId)),
-    ping:to=>png.request(null,{target:to,timeoutMs:3000}).catch(()=>null),
-    count:()=>Object.keys(room.getPeers()).length,
-    onErr:f=>room.onError&&room.onError(f), leave:()=>{ try{ room.leave(); }catch(e){} } };
+  const room=Trystero.joinRoom({appId:APP_ID, password:"wg-"+code, relayConfig:{urls:RELAYS}}, "wod-"+code);
+  const A={}; for(const n of ACTIONS) A[n]=room.makeAction(n);
+  return { send:(a,d,to)=>{ try{ const r=A[a].send(d,to?{target:to}:undefined); r&&r.catch&&r.catch(()=>{}); }catch(e){} },
+    on:(a,f)=>A[a].onMessage((d,c)=>{ try{ f(d,c&&c.peerId!==undefined?c.peerId:c); }catch(e){ console.warn(e); } }),
+    onJoin:f=>room.onPeerJoin(c=>f(c&&c.peerId!==undefined?c.peerId:c)),
+    onLeave:f=>room.onPeerLeave(c=>f(c&&c.peerId!==undefined?c.peerId:c)),
+    onErr:f=>{ if(room.onError) room.onError(f); }, leave:()=>{ try{ room.leave(); }catch(e){} } };
 }
 
+/* Handshake as in RepGrind: an athlete phone says "hello" when a phone connects and again every
+   1.5 s until the coach answers; the coach answers every hello with the state and also repeats the
+   state every 5 s. Athletes ping the coach every 5 s to keep their clock in step with the coach's. */
 const Wod={
-  net:null, code:"", role:"", err:"", coachPeer:null, lost:false, last:0, seq:0,
+  net:null, code:"", role:"", err:"", coachPeer:null, lost:false, last:0, seq:0, lastSt:0,
+  seen:{}, best:null, timer:0, aid:(()=>{ try{ let a=localStorage.getItem("wg_aid"); if(!a){ a=Math.random().toString(36).slice(2,10); localStorage.setItem("wg_aid",a); } return a; }catch(e){ return Math.random().toString(36).slice(2,10); } })(),
   state(){
     if(!R.on||R.role!=="coach"||!R.plan) return {st:"idle",cfg:currentCfg()};
     if(R.done) return {st:"done",cfg:R.cfg,fin:R.fin};
     return R.running?{st:"run",cfg:R.cfg,base:R.base}:{st:"pause",cfg:R.cfg,el:R.pausedEl};
   },
   publish(to){ if(this.role!=="coach"||!this.net) return;
-    this.net.sendSt(Object.assign({app:"wodgrind",v:1,seq:++this.seq,sent:Date.now()},this.state()),to); },
+    this.net.send("st",Object.assign({app:"wodgrind",v:1,seq:++this.seq,sent:Date.now()},this.state()),to); },
+  athletes(){ const n=Date.now(); return Object.values(this.seen).filter(x=>n-x<15000).length; },
   connect(code,role){
     this.leaveNet(); this.err="";
     try{ this.net=netJoin(code); }catch(e){ this.err=t("wNoP2P"); this.net=null; renderWod(); return false; }
-    this.code=code; this.role=role; this.coachPeer=null; this.lost=false; this.last=0;
-    this.net.onErr(e=>{ if(e&&e.code==="relay-failed"){ this.err=t("wRelay"); renderWod(); } });
-    this.net.onJoin(p=>{ if(this.role==="coach") this.publish(p); renderWod(); });
-    this.net.onLeave(p=>{ if(this.role==="athlete"&&p===this.coachPeer){ this.lost=true; tick(); } renderWod(); });
-    this.net.onSt((m,from)=>this.onSt(m,from));
+    this.code=code; this.role=role; this.coachPeer=null; this.lost=false; this.last=0; this.lastSt=0; this.seen={}; this.best=null;
+    const n=this.net;
+    n.onErr(e=>{ if(e&&e.code==="relay-failed"){ this.err=t("wRelay"); renderWod(); if(R.wait) drawWait(); } });
+    n.on("hello",(d,p)=>{ if(this.role!=="coach"||!d||d.app!=="wodgrind") return; this.seen[p]=Date.now(); this.publish(p); renderWod(); });
+    n.on("ping",(d,p)=>{ if(this.role!=="coach"||!d) return; this.seen[p]=Date.now(); n.send("pong",{t:d.t,tc:Date.now()},p); });
+    n.on("pong",(d,p)=>{ if(this.role!=="athlete"||!d||p!==this.coachPeer) return;
+      const t1=Date.now(), rtt=t1-d.t; if(rtt<0||rtt>10000) return;
+      if(!this.best||rtt<=this.best.rtt*1.5||t1-this.best.at>60000){ this.best={rtt,at:t1}; R.offset=d.tc-(d.t+rtt/2); } });
+    n.on("st",(m,p)=>this.onSt(m,p));
+    n.onJoin(p=>{ if(this.role==="athlete") n.send("hello",{app:"wodgrind",v:1,aid:this.aid},p); else if(this.role==="coach") this.publish(p); renderWod(); });
+    n.onLeave(p=>{ delete this.seen[p]; if(this.role==="athlete"&&p===this.coachPeer){ this.lost=true; this.coachPeer=null; if(R.wait) drawWait(); } renderWod(); });
+    clearInterval(this.timer);
+    this.timer=setInterval(()=>{
+      if(!this.net) return;
+      if(this.role==="coach"){ this.publish(); if(document.querySelector('.pane.on[data-t="wod"]')) renderWod(); }
+      else if(this.role==="athlete"){
+        if(!this.coachPeer) n.send("hello",{app:"wodgrind",v:1,aid:this.aid});
+        else n.send("ping",{t:Date.now()},this.coachPeer);
+        if(this.lastSt&&Date.now()-this.lastSt>15000&&!this.lost){ this.lost=true; if(R.wait) drawWait(); }
+      }
+    }, role==="coach"?5000:1500);
     renderWod(); return true;
   },
   host(code){ S.hostCode=code||newCode(); save(); this.connect(S.hostCode,"coach"); renderTimer(); },
-  end(){ if(this.role==="coach"&&this.net){ this.net.sendSt({app:"wodgrind",v:1,st:"end",sent:Date.now()}); }
-    setTimeout(()=>this.leaveNet(),300); S.hostCode=""; save(); this.role=""; this.code=""; renderWod(); renderTimer(); },
+  end(){ if(this.role==="coach"&&this.net) this.net.send("st",{app:"wodgrind",v:1,st:"end",sent:Date.now()});
+    setTimeout(()=>this.leaveNet(),400); S.hostCode=""; save(); this.role=""; this.code=""; renderWod(); renderTimer(); },
   join(raw){
     const code=(raw||"").toUpperCase().replace(/[^A-Z0-9]/g,"");
     if(code.length!==4){ this.err=t("wBad"); renderWod(); return; }
     if(!this.connect(code,"athlete")) return;
     R.role="athlete"; R.offset=0; R.cfg=null; R.plan=[]; R.wait=true; R.done=false; R.running=false;
     openClock(); ctrls(); drawWait();
-    if(!(ac&&ac.state==="running")) { $("sndTap").textContent=t("sndTap"); $("sndTap").classList.add("on"); }
-  },
-  async sync(peer){   // clock difference to the coach's phone: best of a few pings
-    let best=null;
-    for(let i=0;i<5;i++){ const t0=Date.now(), tc=await this.net.ping(peer), t1=Date.now();
-      if(tc==null) continue; const rtt=t1-t0; if(!best||rtt<best.rtt) best={rtt,off:tc-(t0+t1)/2}; }
-    if(best&&this.role==="athlete"){ R.offset=best.off; tick(); }
+    if(!(ac&&ac.state==="running")){ $("sndTap").textContent=t("sndTap"); $("sndTap").classList.add("on"); }
   },
   onSt(m,from){
     if(this.role!=="athlete"||!m||m.app!=="wodgrind") return;
-    if(m.sent<this.last) return; this.last=m.sent;
-    if(this.coachPeer!==from){ this.coachPeer=from; this.sync(from); }
-    this.lost=false;
+    if(this.coachPeer&&from!==this.coachPeer&&!this.lost) return;   // only one coach
+    if(from!==this.coachPeer){ this.coachPeer=from; this.last=0; this.best=null; this.net.send("ping",{t:Date.now()},from); }
+    this.lastSt=Date.now(); const wasLost=this.lost; this.lost=false;
     if(m.st==="end"){ this.leave(); return; }
+    if(m.sent<this.last) return; this.last=m.sent;
+    const same=R.cfg&&JSON.stringify(R.cfg)===JSON.stringify(m.cfg);
     if(m.st==="idle"){ R.cfg=m.cfg; R.wait=true; R.done=false; R.running=false; drawWait(); return; }
-    if(R.wait||R.done||JSON.stringify(R.cfg)!==JSON.stringify(m.cfg)) loadCfg(m.cfg);
+    if(m.st==="done"){ if(!R.done||!same){ if(!same||R.wait) loadCfg(m.cfg); R.wait=false; R.done=false; finish(true,m.fin); } return; }
+    if(R.wait||R.done||!same) loadCfg(m.cfg);
     R.wait=false; R.done=false;
     if(m.st==="run"){ R.base=m.base; R.running=true; }
-    else if(m.st==="pause"){ R.pausedEl=m.el; R.running=false; try{speechSynthesis.cancel();}catch(e){} }
-    else if(m.st==="done"){ finish(true,m.fin); return; }
+    else if(m.st==="pause"){ if(R.running) try{speechSynthesis.cancel();}catch(e){} R.pausedEl=m.el; R.running=false; }
     tick();
   },
-  leaveNet(){ if(this.net){ this.net.leave(); this.net=null; } },
+  leaveNet(){ clearInterval(this.timer); if(this.net){ this.net.leave(); this.net=null; } },
   leave(){ this.leaveNet(); this.role=""; this.code=""; R.role="coach"; R.offset=0;
     try{ history.replaceState(null,"",location.pathname+(new URLSearchParams(location.search).get("net")==="local"?"?net=local":"")); }catch(e){}
     closeClock(); renderWod(); }
 };
 let idleT=0;
 function wodIdle(){ clearTimeout(idleT); idleT=setTimeout(()=>{ if(!R.on) Wod.publish(); },800); }
-// keep the coach's phone count fresh
-setInterval(()=>{ if(Wod.role==="coach"&&document.querySelector('.pane.on[data-t="wod"]')) renderWod(); },3000);
 
 function renderWod(){
   const c=$("wodCard"); const esc=s=>String(s).replace(/[&<>"]/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[ch]));
   let h=`<h2>${t("tabWod")}</h2>`;
   if(Wod.role==="coach"){
-    const n=Wod.net?Wod.net.count():0;
+    const n=Wod.athletes();
     h+=`<div class="wodbig">${esc(Wod.code)}</div><p class="note">${t("wCoach")}</p>
       <div class="row"><button id="wShare">${t("wShare")}</button><button id="wEnd">${t("wEnd")}</button></div>
       <p class="note" style="margin-top:12px"><span class="dot ${n?"on":"wait"}"></span> ${n?t("wPeers")(n):t("wConnecting")+" "+t("wPeers")(0)}</p>`;
@@ -702,6 +720,7 @@ function renderWod(){
 /* ================= What's new and update notice (as in RepGrind) =================
    NEWS: newest first, [version, English lines, Finnish lines]. Keep it in step with CHANGELOG.md. */
 const NEWS=[
+  ["0.2.3",["WOD Code fix: uses a fixed list of 10 relays (same as RepGrind), and the athlete phone keeps calling the coach until it answers.","The athlete screen shows when it is still looking for the coach's phone."],["WOD-koodin korjaus: käyttää kiinteää 10 välityspalvelimen listaa (sama kuin RepGrind), ja urheilijan puhelin kutsuu valmentajaa, kunnes tämä vastaa.","Urheilijan näyttö kertoo, kun valmentajan puhelinta vielä etsitään."]],
   ["0.2.2",["Count up: the time cap takes seconds too, e.g. cap 8:30."],["Ylös: aikarajaan voi asettaa myös sekunnit, esim. aikaraja 8:30."]],
   ["0.2.1",["AMRAP takes seconds too, e.g. AMRAP 7:30."],["AMRAPiin voi asettaa myös sekunnit, esim. AMRAP 7:30."]],
   ["0.2.0",["Update notice like in RepGrind: a bar at the top when a new version is out (not during a workout).","What's new in Setup, and once after each update.","Switch between WODGrind and RepGrind with the squares button at the top."],
