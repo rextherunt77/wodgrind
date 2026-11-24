@@ -11,7 +11,7 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="WODGrind">
 <meta name="application-name" content="WODGrind">
-<!-- WODGrind 0.2.0: built by tools/build.py from src/app.html -->
+<!-- WODGrind 0.2.1: built by tools/build.py from src/app.html -->
 <style>
 /* same look as RepGrind */
 :root{--bg:#111418;--card:#1b2027;--line:#2a313b;--txt:#e9edf2;--mut:#8a95a3;--acc:#ff8c00;--ink:#14171c;--acc2:#3fb6ff;--ok:#3ccf7a;--warn:#ffc53d}
@@ -236,7 +236,7 @@ ${nt}`;Ze.test(B)&&(We(j),j=setTimeout(Ce,Ru),Xe(j))},Oe=()=>{h.iceGatheringStat
 </script>
 <script>
 "use strict";
-const VERSION = "0.2.0";
+const VERSION = "0.2.1";
 
 /* ================= texts ================= */
 const TX = {
@@ -245,7 +245,7 @@ const TX = {
     nUp:"Clock counts up from zero. With a time cap it stops by itself.",
     nDown:"Plain countdown timer.",
     nEmom:"A new interval every minute (every N minutes = E2MOM, E3MOM…).",
-    nAmrap:"Counts down from the minutes you set, with time calls.",
+    nAmrap:"Counts down from the time you set, with time calls.",
     nTabata:"Work and rest intervals. Classic Tabata is 20 s / 10 s × 8.",
     cap:"Time cap (min)", none:"none", minutes:"Minutes", seconds:"Seconds", every:"Every (min)", rounds:"Rounds", work:"Work (s)", rest:"Rest (s)",
     total:"Total", open:"until you stop it", start:"Start",
@@ -280,7 +280,7 @@ const TX = {
     nUp:"Kello laskee ylöspäin nollasta. Aikarajalla se pysähtyy itsestään.",
     nDown:"Tavallinen alaslaskenta.",
     nEmom:"Uusi jakso joka minuutti (joka N. minuutti = E2MOM, E3MOM…).",
-    nAmrap:"Laskee alaspäin asetetuista minuuteista ja kuuluttaa ajan.",
+    nAmrap:"Laskee alaspäin asetetusta ajasta ja kuuluttaa ajan.",
     nTabata:"Työ- ja lepojaksot. Perinteinen Tabata on 20 s / 10 s × 8.",
     cap:"Aikaraja (min)", none:"ei", minutes:"Minuutit", seconds:"Sekunnit", every:"Joka (min)", rounds:"Kierrokset", work:"Työ (s)", rest:"Lepo (s)",
     total:"Yhteensä", open:"kunnes pysäytät", start:"Aloita",
@@ -314,10 +314,12 @@ const TX = {
 const KEY="wodgrind";
 const DEF={ lang:(navigator.language||"en").toLowerCase().startsWith("fi")?"fi":"en",
   voice:true, beep:true, countdown:5, mode:"amrap",
-  up:{cap:0}, down:{min:5,sec:0}, emom:{total:10,every:1}, amrap:{min:12}, tabata:{work:20,rest:10,rounds:8},
+  up:{cap:0}, down:{min:5,sec:0}, emom:{total:10,every:1}, amrap:{min:12,sec:0}, tabata:{work:20,rest:10,rounds:8},
   hostCode:"", tab:"timer" };
 const S=(()=>{ let s=null; try{ s=JSON.parse(localStorage.getItem(KEY)||"null"); }catch(e){}
-  const d=JSON.parse(JSON.stringify(DEF)); return s? Object.assign(d,s):d; })();
+  const d=JSON.parse(JSON.stringify(DEF)); if(!s) return d;
+  for(const k in s){ d[k] = (d[k]&&typeof d[k]==="object"&&s[k]&&typeof s[k]==="object") ? Object.assign(d[k],s[k]) : s[k]; }
+  return d; })();
 function save(){ try{ localStorage.setItem(KEY,JSON.stringify(S)); }catch(e){} }
 const $=id=>document.getElementById(id);
 const t=k=>TX[S.lang][k];
@@ -332,7 +334,7 @@ function buildPlan(cfg){
   const segs=[{k:"cd",d:cfg.cd}], m=cfg.mode, c=cfg.c;
   if(m==="up") segs.push({k:"work",d:c.cap?c.cap*60:null});
   if(m==="down") segs.push({k:"work",d:Math.max(5,c.min*60+c.sec)});
-  if(m==="amrap") segs.push({k:"work",d:c.min*60});
+  if(m==="amrap") segs.push({k:"work",d:Math.max(5,c.min*60+(c.sec||0))});
   if(m==="emom"){ const n=Math.max(1,Math.floor(c.total/c.every)); for(let i=0;i<n;i++) segs.push({k:"work",d:c.every*60,i,n}); }
   if(m==="tabata"){ for(let i=0;i<c.rounds;i++){ segs.push({k:"work",d:c.work,i,n:c.rounds});
       if(c.rest>0&&i<c.rounds-1) segs.push({k:"rest",d:c.rest,i,n:c.rounds}); } }
@@ -343,13 +345,13 @@ function modeTitle(cfg){ const c=cfg.c;
     case "up": return t("up")+(c.cap?` · ${t("cap2")} ${c.cap}′`:"");
     case "down": return t("down")+` · ${fmt(c.min*60+c.sec)}`;
     case "emom": return (c.every>1?`E${c.every}MOM`:"EMOM")+` · ${c.total}′`;
-    case "amrap": return `AMRAP · ${c.min}′`;
+    case "amrap": return "AMRAP · "+(c.sec?fmt(c.min*60+c.sec):`${c.min}′`);
     case "tabata": return `TABATA · ${c.work}/${c.rest} × ${c.rounds}`;
   } return ""; }
 
 /* ================= timer tab ================= */
 const FIELDS={ up:[["cap","cap",0,180,1]], down:[["min","minutes",0,180,1],["sec","seconds",0,55,5]],
-  emom:[["total","minutes",1,120,1],["every","every",1,10,1]], amrap:[["min","minutes",1,120,1]],
+  emom:[["total","minutes",1,120,1],["every","every",1,10,1]], amrap:[["min","minutes",0,120,1],["sec","seconds",0,55,5]],
   tabata:[["work","work",5,600,5],["rest","rest",0,600,5],["rounds","rounds",1,60,1]] };
 const NOTE={up:"nUp",down:"nDown",emom:"nEmom",amrap:"nAmrap",tabata:"nTabata"};
 
@@ -699,6 +701,7 @@ function renderWod(){
 /* ================= What's new and update notice (as in RepGrind) =================
    NEWS: newest first, [version, English lines, Finnish lines]. Keep it in step with CHANGELOG.md. */
 const NEWS=[
+  ["0.2.1",["AMRAP takes seconds too, e.g. AMRAP 7:30."],["AMRAPiin voi asettaa myös sekunnit, esim. AMRAP 7:30."]],
   ["0.2.0",["Update notice like in RepGrind: a bar at the top when a new version is out (not during a workout).","What's new in Setup, and once after each update.","Switch between WODGrind and RepGrind with the squares button at the top."],
            ["Päivitysilmoitus kuten RepGrindissä: palkki yläreunassa, kun uusi versio on julkaistu (ei treenin aikana).","Uutta-luettelo Asetuksissa ja kerran jokaisen päivityksen jälkeen.","Vaihda WODGrindin ja RepGrindin välillä yläreunan neliöpainikkeesta."]],
   ["0.1.0",["Count up, count down, EMOM, AMRAP and Tabata with a full-screen clock, beeps and voice.","WOD Code: athletes follow the coach's clock on their own phones."],
