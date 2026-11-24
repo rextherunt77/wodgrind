@@ -11,7 +11,7 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="WODGrind">
 <meta name="application-name" content="WODGrind">
-<!-- WODGrind 0.2.1: built by tools/build.py from src/app.html -->
+<!-- WODGrind 0.2.2: built by tools/build.py from src/app.html -->
 <style>
 /* same look as RepGrind */
 :root{--bg:#111418;--card:#1b2027;--line:#2a313b;--txt:#e9edf2;--mut:#8a95a3;--acc:#ff8c00;--ink:#14171c;--acc2:#3fb6ff;--ok:#3ccf7a;--warn:#ffc53d}
@@ -236,18 +236,18 @@ ${nt}`;Ze.test(B)&&(We(j),j=setTimeout(Ce,Ru),Xe(j))},Oe=()=>{h.iceGatheringStat
 </script>
 <script>
 "use strict";
-const VERSION = "0.2.1";
+const VERSION = "0.2.2";
 
 /* ================= texts ================= */
 const TX = {
   en:{ tabTimer:"Timer", tabWod:"WOD Code", tabSetup:"Setup", workout:"Workout",
     up:"COUNT UP", down:"COUNT DOWN",
-    nUp:"Clock counts up from zero. With a time cap it stops by itself.",
+    nUp:"Clock counts up from zero. With a time cap (minutes and seconds) it stops by itself.",
     nDown:"Plain countdown timer.",
     nEmom:"A new interval every minute (every N minutes = E2MOM, E3MOM…).",
     nAmrap:"Counts down from the time you set, with time calls.",
     nTabata:"Work and rest intervals. Classic Tabata is 20 s / 10 s × 8.",
-    cap:"Time cap (min)", none:"none", minutes:"Minutes", seconds:"Seconds", every:"Every (min)", rounds:"Rounds", work:"Work (s)", rest:"Rest (s)",
+    cap:"Time cap: minutes", capSec:"Time cap: seconds", none:"none", minutes:"Minutes", seconds:"Seconds", every:"Every (min)", rounds:"Rounds", work:"Work (s)", rest:"Rest (s)",
     total:"Total", open:"until you stop it", start:"Start",
     startNote:"Tap Pause on the clock to pause. Stop needs two taps.",
     startNoteWod:"WOD Code {0} is on: athletes' phones follow this clock.",
@@ -277,12 +277,12 @@ const TX = {
     sNum:["","One","Two","Three","Four","Five"] },
   fi:{ tabTimer:"Ajastin", tabWod:"WOD-koodi", tabSetup:"Asetukset", workout:"Treeni",
     up:"YLÖS", down:"ALAS",
-    nUp:"Kello laskee ylöspäin nollasta. Aikarajalla se pysähtyy itsestään.",
+    nUp:"Kello laskee ylöspäin nollasta. Aikarajalla (minuutit ja sekunnit) se pysähtyy itsestään.",
     nDown:"Tavallinen alaslaskenta.",
     nEmom:"Uusi jakso joka minuutti (joka N. minuutti = E2MOM, E3MOM…).",
     nAmrap:"Laskee alaspäin asetetusta ajasta ja kuuluttaa ajan.",
     nTabata:"Työ- ja lepojaksot. Perinteinen Tabata on 20 s / 10 s × 8.",
-    cap:"Aikaraja (min)", none:"ei", minutes:"Minuutit", seconds:"Sekunnit", every:"Joka (min)", rounds:"Kierrokset", work:"Työ (s)", rest:"Lepo (s)",
+    cap:"Aikaraja: minuutit", capSec:"Aikaraja: sekunnit", none:"ei", minutes:"Minuutit", seconds:"Sekunnit", every:"Joka (min)", rounds:"Kierrokset", work:"Työ (s)", rest:"Lepo (s)",
     total:"Yhteensä", open:"kunnes pysäytät", start:"Aloita",
     startNote:"Kellon Tauko-painike pysäyttää hetkeksi. Lopeta vaatii kaksi painallusta.",
     startNoteWod:"WOD-koodi {0} on päällä: urheilijoiden puhelimet seuraavat tätä kelloa.",
@@ -314,7 +314,7 @@ const TX = {
 const KEY="wodgrind";
 const DEF={ lang:(navigator.language||"en").toLowerCase().startsWith("fi")?"fi":"en",
   voice:true, beep:true, countdown:5, mode:"amrap",
-  up:{cap:0}, down:{min:5,sec:0}, emom:{total:10,every:1}, amrap:{min:12,sec:0}, tabata:{work:20,rest:10,rounds:8},
+  up:{cap:0,capSec:0}, down:{min:5,sec:0}, emom:{total:10,every:1}, amrap:{min:12,sec:0}, tabata:{work:20,rest:10,rounds:8},
   hostCode:"", tab:"timer" };
 const S=(()=>{ let s=null; try{ s=JSON.parse(localStorage.getItem(KEY)||"null"); }catch(e){}
   const d=JSON.parse(JSON.stringify(DEF)); if(!s) return d;
@@ -332,7 +332,7 @@ function fmt(sec){ sec=Math.max(0,Math.floor(sec)); const h=Math.floor(sec/3600)
 function currentCfg(){ return {mode:S.mode, c:Object.assign({},S[S.mode]), cd:S.countdown}; }
 function buildPlan(cfg){
   const segs=[{k:"cd",d:cfg.cd}], m=cfg.mode, c=cfg.c;
-  if(m==="up") segs.push({k:"work",d:c.cap?c.cap*60:null});
+  if(m==="up"){ const cs=(c.cap||0)*60+(c.capSec||0); segs.push({k:"work",d:cs?Math.max(5,cs):null}); }
   if(m==="down") segs.push({k:"work",d:Math.max(5,c.min*60+c.sec)});
   if(m==="amrap") segs.push({k:"work",d:Math.max(5,c.min*60+(c.sec||0))});
   if(m==="emom"){ const n=Math.max(1,Math.floor(c.total/c.every)); for(let i=0;i<n;i++) segs.push({k:"work",d:c.every*60,i,n}); }
@@ -342,7 +342,7 @@ function buildPlan(cfg){
 }
 function modeTitle(cfg){ const c=cfg.c;
   switch(cfg.mode){
-    case "up": return t("up")+(c.cap?` · ${t("cap2")} ${c.cap}′`:"");
+    case "up": { const cs=(c.cap||0)*60+(c.capSec||0); return t("up")+(cs?` · ${t("cap2")} `+(c.capSec?fmt(cs):`${c.cap}′`):""); }
     case "down": return t("down")+` · ${fmt(c.min*60+c.sec)}`;
     case "emom": return (c.every>1?`E${c.every}MOM`:"EMOM")+` · ${c.total}′`;
     case "amrap": return "AMRAP · "+(c.sec?fmt(c.min*60+c.sec):`${c.min}′`);
@@ -350,7 +350,7 @@ function modeTitle(cfg){ const c=cfg.c;
   } return ""; }
 
 /* ================= timer tab ================= */
-const FIELDS={ up:[["cap","cap",0,180,1]], down:[["min","minutes",0,180,1],["sec","seconds",0,55,5]],
+const FIELDS={ up:[["cap","cap",0,180,1],["capSec","capSec",0,55,5]], down:[["min","minutes",0,180,1],["sec","seconds",0,55,5]],
   emom:[["total","minutes",1,120,1],["every","every",1,10,1]], amrap:[["min","minutes",0,120,1],["sec","seconds",0,55,5]],
   tabata:[["work","work",5,600,5],["rest","rest",0,600,5],["rounds","rounds",1,60,1]] };
 const NOTE={up:"nUp",down:"nDown",emom:"nEmom",amrap:"nAmrap",tabata:"nTabata"};
@@ -364,14 +364,15 @@ function renderTimer(){
   document.querySelectorAll("#modes button").forEach(b=>{ const m=b.dataset.m;
     if(m==="up"||m==="down") b.textContent=t(m); b.classList.toggle("sel",m===S.mode); });
   $("modeNote").textContent=t(NOTE[S.mode]);
-  const p=$("params"); p.innerHTML="";
+  const p=$("params"); p.innerHTML=""; const shows=[];
   for(const [k,lab,min,max,step] of FIELDS[S.mode]){
     const r=document.createElement("div"); r.className="crow";
     r.innerHTML=`<span class="cl"></span><button aria-label="−">−</button><input inputmode="numeric"><button aria-label="+">+</button>`;
     r.querySelector(".cl").textContent=t(lab);
     const [mi,pl]=r.querySelectorAll("button"), inp=r.querySelector("input");
-    const show=()=>{ const v=S[S.mode][k]; inp.value=(S.mode==="up"&&v===0)?t("none"):v; summary(); };
-    const set=v=>{ v=Math.round(v/step)*step; S[S.mode][k]=Math.min(max,Math.max(min,isNaN(v)?min:v)); save(); show(); wodIdle(); };
+    const show=()=>{ const c=S[S.mode], v=c[k]; inp.value=(S.mode==="up"&&k==="cap"&&!c.cap&&!c.capSec)?t("none"):v; summary(); };
+    shows.push(show);
+    const set=v=>{ v=Math.round(v/step)*step; S[S.mode][k]=Math.min(max,Math.max(min,isNaN(v)?min:v)); save(); shows.forEach(f=>f()); wodIdle(); };
     hold(mi,()=>set(S[S.mode][k]-step)); hold(pl,()=>set(S[S.mode][k]+step));
     inp.onfocus=()=>inp.select(); inp.onchange=()=>set(parseInt(inp.value,10)||0);
     p.appendChild(r); show();
@@ -381,7 +382,7 @@ function renderTimer(){
 }
 function summary(){
   const cfg=currentCfg(), tot=buildPlan(cfg).filter(s=>s.k!=="cd").reduce((a,s)=>a+(s.d||0),0);
-  $("sumL").textContent=t("total"); $("sumV").textContent=(cfg.mode==="up"&&!cfg.c.cap)?t("open"):fmt(tot);
+  $("sumL").textContent=t("total"); $("sumV").textContent=(cfg.mode==="up"&&!tot)?t("open"):fmt(tot);
 }
 $("modes").onclick=e=>{ const m=e.target.closest("button")?.dataset.m; if(m){ S.mode=m; save(); renderTimer(); wodIdle(); } };
 
@@ -534,8 +535,8 @@ function finish(byUser,fin){
   if(R.done) return;
   const e=Math.max(0,elapsed()-R.cfg.cd);
   R.done=true; R.running=false;
-  R.fin = fin!=null?fin:(R.cfg.mode==="up"?e:Math.min(e,R.total));
-  const capHit=R.cfg.mode==="up"&&R.cfg.c.cap&&!byUser;
+  const capHit=R.cfg.mode==="up"&&!!R.plan[1].d&&!byUser;
+  R.fin = fin!=null?fin:(capHit?R.plan[1].d:(R.cfg.mode==="up"?e:Math.min(e,R.total)));
   setCls("done"); $("cPhase").textContent=t("done");
   const b=$("cBig"); b.className="tc"; b.textContent=fmt(R.fin);
   $("cSub").textContent=capHit?t("cap2"):""; $("cTR").textContent=""; $("cFill").style.width="100%";
@@ -701,6 +702,7 @@ function renderWod(){
 /* ================= What's new and update notice (as in RepGrind) =================
    NEWS: newest first, [version, English lines, Finnish lines]. Keep it in step with CHANGELOG.md. */
 const NEWS=[
+  ["0.2.2",["Count up: the time cap takes seconds too, e.g. cap 8:30."],["Ylös: aikarajaan voi asettaa myös sekunnit, esim. aikaraja 8:30."]],
   ["0.2.1",["AMRAP takes seconds too, e.g. AMRAP 7:30."],["AMRAPiin voi asettaa myös sekunnit, esim. AMRAP 7:30."]],
   ["0.2.0",["Update notice like in RepGrind: a bar at the top when a new version is out (not during a workout).","What's new in Setup, and once after each update.","Switch between WODGrind and RepGrind with the squares button at the top."],
            ["Päivitysilmoitus kuten RepGrindissä: palkki yläreunassa, kun uusi versio on julkaistu (ei treenin aikana).","Uutta-luettelo Asetuksissa ja kerran jokaisen päivityksen jälkeen.","Vaihda WODGrindin ja RepGrindin välillä yläreunan neliöpainikkeesta."]],
