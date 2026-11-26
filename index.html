@@ -19,10 +19,10 @@
 <meta property="og:url" content="https://rextherunt77.github.io/wodgrind/">
 <meta property="og:image" content="https://rextherunt77.github.io/wodgrind/icons/icon-512.png">
 <meta property="og:image:width" content="512"><meta property="og:image:height" content="512">
-<!-- WODGrind 0.2.8: built by tools/build.py from src/app.html -->
+<!-- WODGrind 0.2.9: built by tools/build.py from src/app.html -->
 <script>window.GRIND_APP="wg";</script>
 <script>
-/* RepGrind family diagnostics (RepGrind + WODGrind). Keeps the last 300 log lines on the phone;
+/* REPGrind family diagnostics (REPGrind + WODGrind). Keeps the last 300 log lines on the phone;
    nothing leaves the phone until the user taps Report on GitHub / Copy report.
    Logs: errors, unhandled promise errors, console warnings/errors, relay WebSocket open/close/error,
    and the WebRTC connection state between phones (connected / failed) with the candidate types found
@@ -82,7 +82,7 @@
 
 </script>
 <style>
-/* same look as RepGrind */
+/* same look as REPGrind */
 :root{--bg:#111418;--card:#1b2027;--line:#2a313b;--txt:#e9edf2;--mut:#8a95a3;--acc:#ff8c00;--ink:#14171c;--acc2:#3fb6ff;--ok:#3ccf7a;--warn:#ffc53d}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
 body{margin:0;background:var(--bg);color:var(--txt);font:15px/1.4 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;padding:12px 12px calc(90px + env(safe-area-inset-bottom));max-width:720px;margin:auto}
@@ -131,14 +131,14 @@ input.code{width:110px;text-transform:uppercase;letter-spacing:6px;font-weight:8
 #tabbar button.live::after{content:'';position:absolute;top:9px;left:calc(50% + 9px);width:8px;height:8px;border-radius:50%;background:var(--acc)}
 #tabbar button{position:relative}
 .btnlink{display:inline-flex;align-items:center;padding:10px 14px;border-radius:10px;background:#262c35;color:var(--txt);text-decoration:none;font-weight:600}
-/* update bar and What's new – as in RepGrind */
+/* update bar and What's new – as in REPGrind */
 #updBar{position:fixed;left:8px;right:8px;top:calc(8px + env(safe-area-inset-top));z-index:30;background:#1b2027;border:1px solid var(--acc);border-radius:12px;padding:10px 12px;display:none;gap:10px;align-items:center;justify-content:space-between;font-size:14px;max-width:704px;margin:auto}
 #updBar.on{display:flex}#updBar #updN{color:var(--mut);font-size:12px;margin-top:2px}#updBar .ub{display:flex;gap:6px;flex-shrink:0}#updBar button{min-height:36px;padding:6px 12px}
 .nw{margin:4px 0 10px}.nw ul{margin:4px 0 0 18px;padding:0}.nw li{margin:2px 0}
 #dlg{position:fixed;inset:0;z-index:40;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;padding:16px}
 #dlg.on{display:flex}#dlg .dbox{background:#1b2027;border:1px solid var(--acc);border-radius:14px;padding:16px;max-width:460px;width:100%}
 #dlg .dbox p{white-space:pre-line;margin:0 0 14px}#dlg .dbox button{width:100%}
-/* app switcher (RepGrind family) */
+/* app switcher (REPGrind family) */
 #appMenu{position:fixed;top:calc(52px + env(safe-area-inset-top));right:12px;z-index:25;background:#1b2027;border:1px solid var(--line);border-radius:14px;padding:6px;display:none;min-width:250px;box-shadow:0 10px 30px rgba(0,0,0,.5)}
 #appMenu.on{display:block}
 .app{display:flex;align-items:center;gap:12px;padding:10px;border-radius:10px;color:var(--txt);text-decoration:none}
@@ -146,7 +146,7 @@ input.code{width:110px;text-transform:uppercase;letter-spacing:6px;font-weight:8
 .app b{display:block;font-size:15px}.app small{color:var(--mut);font-size:12px}.app.cur{box-shadow:inset 0 0 0 2px var(--acc)}
 .app .ck{margin-left:auto;color:var(--acc);font-weight:700}
 
-/* ---- the clock (like RepGrind tap mode) ---- */
+/* ---- the clock (like REPGrind tap mode) ---- */
 #clock{position:fixed;inset:0;background:#0b0d10;display:none;flex-direction:column;align-items:stretch;justify-content:space-between;-webkit-user-select:none;user-select:none;z-index:15;transition:background .2s}
 #clock.on{display:flex}
 #clock .tt{padding:calc(14px + env(safe-area-inset-top)) 16px 0;display:flex;align-items:center;justify-content:space-between;gap:10px;color:var(--mut);font-variant-numeric:tabular-nums;font-size:clamp(16px,2.6vw,26px);font-weight:600}
@@ -187,19 +187,19 @@ input.code{width:110px;text-transform:uppercase;letter-spacing:6px;font-weight:8
 <header>
   <h1><svg viewBox="-60 -60 120 120" width="26" height="26" aria-hidden="true" style="margin-right:7px"><use href="#logo"/></svg><span class="wm">WOD<b>GRIND</b></span>&nbsp;<small id="ver" style="color:var(--mut);font-weight:500;letter-spacing:0"></small></h1>
   <div class="pill"><button id="wodBadge"></button>
-    <button class="gear" id="bApps" aria-label="RepGrind apps" title="RepGrind apps"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.5"/></svg></button>
+    <button class="gear" id="bApps" aria-label="REPGrind apps" title="REPGrind apps"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.5"/></svg></button>
     <button class="gear" id="bSet" aria-label="Settings" title="Settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h0a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51h0a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v0a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button>
   </div>
 </header>
 <div id="updBar"><div><b id="updT"></b><div id="updN"></div></div><div class="ub"><button id="updGo" class="p"></button><button id="updLater"></button></div></div>
 <div id="dlg"><div class="dbox"><p id="dlgT"></p><button class="p" id="dlgOk">OK</button></div></div>
 <div id="appMenu">
-  <a class="app" id="appRep"><svg viewBox="-60 -60 120 120"><use href="#rglogo"/></svg><div><b>RepGrind</b><small id="appRepD"></small></div></a>
+  <a class="app" id="appRep"><svg viewBox="-60 -60 120 120"><use href="#rglogo"/></svg><div><b>REPGrind</b><small id="appRepD"></small></div></a>
   <a class="app cur" id="appWod"><svg viewBox="-60 -60 120 120"><use href="#logo"/></svg><div><b>WODGrind</b><small id="appWodD"></small></div><span class="ck">✓</span></a>
 </div>
 
 <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
-  <!-- WODGrind logo: the RepGrind claw-mark tally inside a stopwatch, dark on orange -->
+  <!-- WODGrind logo: the REPGrind claw-mark tally inside a stopwatch, dark on orange -->
   <g id="rglogo">
     <rect x="-60" y="-60" width="120" height="120" rx="30" fill="#ff8c00"/>
     <g fill="#14171c">
@@ -314,8 +314,8 @@ ${nt}`;Ze.test(B)&&(We(j),j=setTimeout(Ce,Eu),Xe(j))},Oe=()=>{h.iceGatheringStat
 </script>
 <script>
 "use strict";
-const dlog=m=>{ try{ GrindDiag.log(m); }catch(e){} };   // diagnostics: src/diag.js (shared with RepGrind)
-const VERSION = "0.2.8";
+const dlog=m=>{ try{ GrindDiag.log(m); }catch(e){} };   // diagnostics: src/diag.js (shared with REPGrind)
+const VERSION = "0.2.9";
 
 /* ================= texts ================= */
 const TX = {
@@ -337,12 +337,12 @@ const TX = {
     sound:"Sound", voice:"Voice cues (female voice)", beep:"Beeps",
     voiceNote:"Says 5-4-3-2-1, Go, Rest, rounds, minutes left and Finish in the app language. On iPhone turn off silent mode.",
     test:"Test sound", cd:"Start countdown", help:"Help", helpLink:"Open the guide",
-    about:"WODGrind {0} – a workout timer from the RepGrind family. Settings stay on this phone.",
+    about:"WODGrind {0} – a workout timer from the REPGrind family. Settings stay on this phone.",
     updT:"WODGrind {0} is available", upd:"Update", later:"Later", whatsNew:"What's new", newDlg:"WODGrind {0}: what's new",
     bug:"Bug report", bugNote:"Something went wrong? The app keeps a short log on this phone (errors, WOD Code steps, phone type – no personal data). Report on GitHub opens a ready-filled report for you to check and send; or copy it and send it on WhatsApp.",
     bugGh:"Report on GitHub", bugCopy:"Copy report", bugClear:"Clear log", bugLines:n=>n===1?"1 line in the log":`${n} lines in the log`, bugCopied:"Report copied", bugWhat:"What happened? (write here)",
-    apps:"RepGrind apps", appsNote:"WODGrind and RepGrind work side by side. Switch with the squares button at the top.",
-    openRep:"Open RepGrind", repD:"Rep counter – count reps, results, export", wodD:"Workout timer for coaches",
+    apps:"REPGrind apps", appsNote:"WODGrind and REPGrind work side by side. Switch with the squares button at the top.",
+    openRep:"Open REPGrind", repD:"Rep counter – count reps, results, export", wodD:"Workout timer for coaches",
     // WOD Code
     wIntro:"Athletes follow this clock on their own phones – at the ski ergs, the rower or across the gym. A tablet or TV can join the same way.",
     wCreate:"Create WOD Code (I'm the coach)", wCodePh:"Code", wJoin:"Join",
@@ -374,12 +374,12 @@ const TX = {
     sound:"Äänet", voice:"Puhutut vihjeet (naisääni)", beep:"Äänimerkit",
     voiceNote:"Sanoo 5-4-3-2-1, Nyt, Lepo, kierrokset, jäljellä olevat minuutit ja Valmis sovelluksen kielellä. iPhonessa äänetön tila pois.",
     test:"Testaa ääni", cd:"Aloituslaskenta", help:"Ohje", helpLink:"Avaa käyttöohje",
-    about:"WODGrind {0} – treeniajastin RepGrind-perheestä. Asetukset pysyvät tässä puhelimessa.",
+    about:"WODGrind {0} – treeniajastin REPGrind-perheestä. Asetukset pysyvät tässä puhelimessa.",
     updT:"WODGrind {0} on saatavilla", upd:"Päivitä", later:"Myöhemmin", whatsNew:"Uutta", newDlg:"WODGrind {0}: uutta",
     bug:"Vikailmoitus", bugNote:"Menikö jotain pieleen? Sovellus pitää tässä puhelimessa lyhyttä lokia (virheet, WOD-koodin vaiheet, puhelimen tyyppi – ei henkilötietoja). Ilmoita GitHubissa avaa valmiiksi täytetyn ilmoituksen tarkistettavaksi ja lähetettäväksi; tai kopioi se ja lähetä WhatsAppissa.",
     bugGh:"Ilmoita GitHubissa", bugCopy:"Kopioi ilmoitus", bugClear:"Tyhjennä loki", bugLines:n=>n===1?"lokissa 1 rivi":`lokissa ${n} riviä`, bugCopied:"Ilmoitus kopioitu", bugWhat:"Mitä tapahtui? (kirjoita tähän)",
-    apps:"RepGrind-sovellukset", appsNote:"WODGrind ja RepGrind toimivat rinnakkain. Vaihda yläreunan neliöpainikkeesta.",
-    openRep:"Avaa RepGrind", repD:"Toistolaskuri – toistot, tulokset, vienti", wodD:"Treeniajastin valmentajille",
+    apps:"REPGrind-sovellukset", appsNote:"WODGrind ja REPGrind toimivat rinnakkain. Vaihda yläreunan neliöpainikkeesta.",
+    openRep:"Avaa REPGrind", repD:"Toistolaskuri – toistot, tulokset, vienti", wodD:"Treeniajastin valmentajille",
     wIntro:"Urheilijat seuraavat tätä kelloa omilla puhelimillaan – hiihtolaitteilla, soutulaitteella tai salin toisella puolella. Tabletti tai TV liittyy samalla tavalla.",
     wCreate:"Luo WOD-koodi (olen valmentaja)", wCodePh:"Koodi", wJoin:"Liity",
     wCoach:"Urheilijat: avaa WODGrind → WOD-koodi, kirjoita tämä koodi ja paina Liity.",
@@ -668,14 +668,14 @@ $("sndTap").onclick=()=>{ unlockAudio(); $("sndTap").classList.remove("on"); };
 $("clock").addEventListener("pointerdown",()=>{ if($("sndTap").classList.contains("on")){ unlockAudio(); $("sndTap").classList.remove("on"); } },true);
 
 /* ================= WOD Code =================
-   Same method as RepGrind: phones connect directly to each other (WebRTC), found through free
+   Same method as REPGrind: phones connect directly to each other (WebRTC), found through free
    public Nostr relays with Trystero. No own server. The coach phone sends a small state message
    (start time, pause, finish) only when something changes; every athlete phone runs the clock itself.
    On joining, an athlete gets the current state at once and measures the time difference to the
    coach's phone (ping), so all clocks show the same second.
    Test without internet: open the app with ?net=local in two tabs of the same browser. */
 // Trystero picks only 5 of its relays from the app ID, and one bad pick means phones never meet.
-// RepGrind and WODGrind use this same fixed list of 10 (all from Trystero's own tested list).
+// REPGrind and WODGrind use this same fixed list of 10 (all from Trystero's own tested list).
 const RELAYS=["wss://relay.primal.net","wss://relay.nostr.net","wss://relay.snort.social","wss://nostr-pub.wellorder.net","wss://relay.ditto.pub",
   "wss://relay.angor.io","wss://relay.nostrhub.fr","wss://nostr-01.yakihonne.com","wss://nostr.hifish.org","wss://fanfares.nostr1.com"];
 const APP_ID="wodgrind-wodcode-v1", CODE_CH="ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
@@ -710,7 +710,7 @@ function netJoin(code){
     onErr:f=>{ if(room.onError) room.onError(f); }, leave:()=>{ try{ room.leave(); }catch(e){} } };
 }
 
-/* Handshake as in RepGrind: an athlete phone says "hello" when a phone connects and again every
+/* Handshake as in REPGrind: an athlete phone says "hello" when a phone connects and again every
    1.5 s until the coach answers; the coach answers every hello with the state and also repeats the
    state every 5 s. Athletes ping the coach every 5 s to keep their clock in step with the coach's. */
 const Wod={
@@ -824,21 +824,22 @@ function renderWod(){
   document.querySelector('#tabbar [data-t="wod"]').classList.toggle("live",Wod.role==="coach");
 }
 
-/* ================= What's new and update notice (as in RepGrind) =================
+/* ================= What's new and update notice (as in REPGrind) =================
    NEWS: newest first, [version, English lines, Finnish lines]. Keep it in step with CHANGELOG.md. */
 const NEWS=[
+  ["0.2.9",["The rep counter app is now called REPGrind everywhere (in the apps menu, Setup and the user guide), matching WODGrind and METGrind."],["Toistolaskurisovelluksen nimi on nyt kaikkialla REPGrind (sovellusvalikossa, asetuksissa ja käyttöohjeessa), kuten WODGrind ja METGrind."]],
   ["0.2.8",["The workout name (e.g. TABATA · 20/10 × 8) is shown big above the clock."],["Treenin nimi (esim. TABATA · 20/10 × 8) näkyy isona kellon yläpuolella."]],
-  ["0.2.7",["The bug report log also shows the WOD Code connections (relays, and whether the phones connected to each other) – the same report as in RepGrind."],["Vikailmoituksen loki näyttää myös WOD-koodin yhteydet (välityspalvelimet ja yhdistyivätkö puhelimet toisiinsa) – sama ilmoitus kuin RepGrindissä."]],
+  ["0.2.7",["The bug report log also shows the WOD Code connections (relays, and whether the phones connected to each other) – the same report as in REPGrind."],["Vikailmoituksen loki näyttää myös WOD-koodin yhteydet (välityspalvelimet ja yhdistyivätkö puhelimet toisiinsa) – sama ilmoitus kuin REPGrindissä."]],
   ["0.2.6",["Bug report in Setup: the app keeps a short log on the phone and opens a ready-filled report on GitHub (or copy it to WhatsApp).","Joining is more reliable: the coach's phone reconnects when you come back from WhatsApp, and an athlete phone that can't find the coach starts over every 15 s.","The waiting screen and the WOD Code tab show how many relays are reached (e.g. relays 8/10)."],
            ["Vikailmoitus Asetuksissa: sovellus pitää puhelimessa lyhyttä lokia ja avaa valmiiksi täytetyn ilmoituksen GitHubiin (tai kopioi se WhatsAppiin).","Liittyminen on varmempaa: valmentajan puhelin yhdistää uudelleen, kun palaat WhatsAppista, ja urheilijan puhelin aloittaa alusta 15 s välein, jos valmentajaa ei löydy.","Odotusnäyttö ja WOD-koodi-välilehti näyttävät, moneenko välityspalvelimeen yhteys on (esim. välityspalvelimet 8/10)."]],
   ["0.2.5",["Sharing a WOD Code on WhatsApp: the link is now always in the message, with a WODGrind preview."],["WOD-koodin jakaminen WhatsAppissa: linkki on nyt aina viestissä, ja siinä on WODGrind-esikatselu."]],
   ["0.2.4",["Tabata and EMOM intervals longer than a minute show minutes and seconds (2:49, not 169).","The sound prompt (shown when you join from an invite link) is a small button below the clock; any touch on the clock turns the sound on.","Athlete phones show a warning if the connection to the coach drops, and rejoin by themselves."],
            ["Yli minuutin Tabata- ja EMOM-jaksot näytetään minuutteina ja sekunteina (2:49, ei 169).","Äänikehote (kun liityt kutsulinkistä) on pieni painike kellon alla; mikä tahansa kosketus kelloon kytkee äänet päälle.","Urheilijan puhelin varoittaa, jos yhteys valmentajaan katkeaa, ja liittyy uudelleen itse."]],
-  ["0.2.3",["WOD Code fix: uses a fixed list of 10 relays (same as RepGrind), and the athlete phone keeps calling the coach until it answers.","The athlete screen shows when it is still looking for the coach's phone."],["WOD-koodin korjaus: käyttää kiinteää 10 välityspalvelimen listaa (sama kuin RepGrind), ja urheilijan puhelin kutsuu valmentajaa, kunnes tämä vastaa.","Urheilijan näyttö kertoo, kun valmentajan puhelinta vielä etsitään."]],
+  ["0.2.3",["WOD Code fix: uses a fixed list of 10 relays (same as REPGrind), and the athlete phone keeps calling the coach until it answers.","The athlete screen shows when it is still looking for the coach's phone."],["WOD-koodin korjaus: käyttää kiinteää 10 välityspalvelimen listaa (sama kuin REPGrind), ja urheilijan puhelin kutsuu valmentajaa, kunnes tämä vastaa.","Urheilijan näyttö kertoo, kun valmentajan puhelinta vielä etsitään."]],
   ["0.2.2",["Count up: the time cap takes seconds too, e.g. cap 8:30."],["Ylös: aikarajaan voi asettaa myös sekunnit, esim. aikaraja 8:30."]],
   ["0.2.1",["AMRAP takes seconds too, e.g. AMRAP 7:30."],["AMRAPiin voi asettaa myös sekunnit, esim. AMRAP 7:30."]],
-  ["0.2.0",["Update notice like in RepGrind: a bar at the top when a new version is out (not during a workout).","What's new in Setup, and once after each update.","Switch between WODGrind and RepGrind with the squares button at the top."],
-           ["Päivitysilmoitus kuten RepGrindissä: palkki yläreunassa, kun uusi versio on julkaistu (ei treenin aikana).","Uutta-luettelo Asetuksissa ja kerran jokaisen päivityksen jälkeen.","Vaihda WODGrindin ja RepGrindin välillä yläreunan neliöpainikkeesta."]],
+  ["0.2.0",["Update notice like in REPGrind: a bar at the top when a new version is out (not during a workout).","What's new in Setup, and once after each update.","Switch between WODGrind and REPGrind with the squares button at the top."],
+           ["Päivitysilmoitus kuten REPGrindissä: palkki yläreunassa, kun uusi versio on julkaistu (ei treenin aikana).","Uutta-luettelo Asetuksissa ja kerran jokaisen päivityksen jälkeen.","Vaihda WODGrindin ja REPGrindin välillä yläreunan neliöpainikkeesta."]],
   ["0.1.0",["Count up, count down, EMOM, AMRAP and Tabata with a full-screen clock, beeps and voice.","WOD Code: athletes follow the coach's clock on their own phones."],
            ["Ylös, alas, EMOM, AMRAP ja Tabata koko näytön kellolla, piippauksilla ja puheella.","WOD-koodi: urheilijat seuraavat valmentajan kelloa omilla puhelimillaan."]]
 ];

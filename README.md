@@ -9,6 +9,6 @@ athletes follow the same clock on their own phones (at the ski ergs, the rower, 
 Settings stay on your phone; nothing is sent to this site. WOD Code connects phones directly (WebRTC via public Nostr relays, using
 [Trystero](https://github.com/dmotz/trystero), MIT licence).
 
-From the RepGrind family: https://rextherunt77.github.io/repgrind/
+From the REPGrind family: https://rextherunt77.github.io/repgrind/
 
-Version 0.2.8. This repository holds only the built app; it is published from a private project.
+Version 0.2.9. This repository holds only the built app; it is published from a private project.
