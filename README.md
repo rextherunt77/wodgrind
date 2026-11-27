@@ -11,4 +11,4 @@ Settings stay on your phone; nothing is sent to this site. WOD Code connects pho
 
 From the REPGrind family: https://rextherunt77.github.io/repgrind/
 
-Version 0.2.10. This repository holds only the built app; it is published from a private project.
+Version 0.2.11. This repository holds only the built app; it is published from a private project.

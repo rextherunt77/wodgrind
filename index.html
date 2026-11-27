@@ -19,7 +19,7 @@
 <meta property="og:url" content="https://rextherunt77.github.io/wodgrind/">
 <meta property="og:image" content="https://rextherunt77.github.io/wodgrind/icons/icon-512.png">
 <meta property="og:image:width" content="512"><meta property="og:image:height" content="512">
-<!-- WODGrind 0.2.10: built by tools/build.py from src/app.html -->
+<!-- WODGrind 0.2.11: built by tools/build.py from src/app.html -->
 <script>window.GRIND_APP="wg";</script>
 <script>
 /* REPGrind family diagnostics (REPGrind + WODGrind). Keeps the last 300 log lines on the phone;
@@ -196,6 +196,7 @@ input.code{width:110px;text-transform:uppercase;letter-spacing:6px;font-weight:8
 <div id="appMenu">
   <a class="app" id="appRep"><svg viewBox="-60 -60 120 120"><use href="#rglogo"/></svg><div><b>REPGrind</b><small id="appRepD"></small></div></a>
   <a class="app cur" id="appWod"><svg viewBox="-60 -60 120 120"><use href="#logo"/></svg><div><b>WODGrind</b><small id="appWodD"></small></div><span class="ck">✓</span></a>
+  <a class="app" id="appMet"><svg viewBox="-60 -60 120 120"><use href="#mglogo"/></svg><div><b>METGrind <small style="display:inline;color:var(--acc)">beta</small></b><small id="appMetD"></small></div></a>
 </div>
 
 <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
@@ -221,7 +222,7 @@ input.code{width:110px;text-transform:uppercase;letter-spacing:6px;font-weight:8
       <path transform="rotate(62) scale(1.1 1.15)" d="M0 -38 L5 -25 L3 -18 L8 -6 L6 3 L9 16 L5 38 L1 18 L-2 5 L0 -3 L-4 -16 L-2 -25 Z"/>
     </g>
   </g>
-</defs></svg>
+<g id="mglogo"><rect x="-60" y="-60" width="120" height="120" rx="30" fill="#ff8c00"/><path d="M-44 -28V-44H-28M28 -44H44V-28M44 28V44H28M-28 44H-44V28" fill="none" stroke="#14171c" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round"/><g transform="translate(0 2) scale(.8)"><path d="M-17 -14V-28Q-17 -42 -4 -42H4Q17 -42 17 -28V-14" fill="none" stroke="#14171c" stroke-width="10" stroke-linejoin="round"/><circle cx="0" cy="14" r="32" fill="#14171c"/><g transform="translate(0 14) scale(.52)" fill="#ff8c00"><path transform="translate(-14 0) rotate(-9)" d="M0 -38 L5 -25 L3 -18 L8 -6 L6 3 L9 16 L5 38 L1 18 L-2 5 L0 -3 L-4 -16 L-2 -25 Z"/><path transform="rotate(-9)" d="M0 -38 L5 -25 L3 -18 L8 -6 L6 3 L9 16 L5 38 L1 18 L-2 5 L0 -3 L-4 -16 L-2 -25 Z"/><path transform="translate(14 0) rotate(-9)" d="M0 -38 L5 -25 L3 -18 L8 -6 L6 3 L9 16 L5 38 L1 18 L-2 5 L0 -3 L-4 -16 L-2 -25 Z"/><path transform="rotate(62) scale(1.1 1.15)" d="M0 -38 L5 -25 L3 -18 L8 -6 L6 3 L9 16 L5 38 L1 18 L-2 5 L0 -3 L-4 -16 L-2 -25 Z"/></g></g></g></defs></svg>
 
 <!-- ===== TIMER ===== -->
 <section class="pane on" data-t="timer">
@@ -264,6 +265,7 @@ input.code{width:110px;text-transform:uppercase;letter-spacing:6px;font-weight:8
     <h2 id="hApps"></h2>
     <p class="note" id="appsNote"></p>
     <div class="row"><a class="btnlink" id="appsRep" style="gap:10px"><svg viewBox="-60 -60 120 120" width="24" height="24"><use href="#rglogo"/></svg><span id="appsRepT"></span></a></div>
+    <div class="row"><a class="btnlink" id="appsMet" style="gap:10px"><svg viewBox="-60 -60 120 120" width="24" height="24"><use href="#mglogo"/></svg><span id="appsMetT"></span></a></div>
   </div>
   <div class="card">
     <h2 id="hNew"></h2>
@@ -316,7 +318,7 @@ ${nt}`;Ze.test(B)&&(We(j),j=setTimeout(Ce,Eu),Xe(j))},Oe=()=>{h.iceGatheringStat
 <script>
 "use strict";
 const dlog=m=>{ try{ GrindDiag.log(m); }catch(e){} };   // diagnostics: src/diag.js (shared with REPGrind)
-const VERSION = "0.2.10";
+const VERSION = "0.2.11";
 
 /* ================= texts ================= */
 const TX = {
@@ -342,8 +344,8 @@ const TX = {
     updT:"WODGrind {0} is available", upd:"Update", later:"Later", whatsNew:"What's new", showOlder:"Show older versions", showFewer:"Show fewer", newDlg:"WODGrind {0}: what's new",
     bug:"Bug report", bugNote:"Something went wrong? The app keeps a short log on this phone (errors, WOD Code steps, phone type – no personal data). Report on GitHub opens a ready-filled report for you to check and send; or copy it and send it on WhatsApp.",
     bugGh:"Report on GitHub", bugCopy:"Copy report", bugClear:"Clear log", bugLines:n=>n===1?"1 line in the log":`${n} lines in the log`, bugCopied:"Report copied", bugWhat:"What happened? (write here)",
-    apps:"REPGrind apps", appsNote:"WODGrind and REPGrind work side by side. Switch with the squares button at the top.",
-    openRep:"Open REPGrind", repD:"Rep counter – count reps, results, export", wodD:"Workout timer for coaches",
+    apps:"REPGrind apps", appsNote:"WODGrind, REPGrind and METGrind work side by side. Switch with the squares button at the top.",
+    openRep:"Open REPGrind", openMet:"Open METGrind (beta)", metD:"Camera counts your metcon", repD:"Rep counter – count reps, results, export", wodD:"Workout timer for coaches",
     // WOD Code
     wIntro:"Athletes follow this clock on their own phones – at the ski ergs, the rower or across the gym. A tablet or TV can join the same way.",
     wCreate:"Create WOD Code (I'm the coach)", wCodePh:"Code", wJoin:"Join",
@@ -379,8 +381,8 @@ const TX = {
     updT:"WODGrind {0} on saatavilla", upd:"Päivitä", later:"Myöhemmin", whatsNew:"Uutta", showOlder:"Näytä vanhemmat versiot", showFewer:"Näytä vähemmän", newDlg:"WODGrind {0}: uutta",
     bug:"Vikailmoitus", bugNote:"Menikö jotain pieleen? Sovellus pitää tässä puhelimessa lyhyttä lokia (virheet, WOD-koodin vaiheet, puhelimen tyyppi – ei henkilötietoja). Ilmoita GitHubissa avaa valmiiksi täytetyn ilmoituksen tarkistettavaksi ja lähetettäväksi; tai kopioi se ja lähetä WhatsAppissa.",
     bugGh:"Ilmoita GitHubissa", bugCopy:"Kopioi ilmoitus", bugClear:"Tyhjennä loki", bugLines:n=>n===1?"lokissa 1 rivi":`lokissa ${n} riviä`, bugCopied:"Ilmoitus kopioitu", bugWhat:"Mitä tapahtui? (kirjoita tähän)",
-    apps:"REPGrind-sovellukset", appsNote:"WODGrind ja REPGrind toimivat rinnakkain. Vaihda yläreunan neliöpainikkeesta.",
-    openRep:"Avaa REPGrind", repD:"Toistolaskuri – toistot, tulokset, vienti", wodD:"Treeniajastin valmentajille",
+    apps:"REPGrind-sovellukset", appsNote:"WODGrind, REPGrind ja METGrind toimivat rinnakkain. Vaihda yläreunan neliöpainikkeesta.",
+    openRep:"Avaa REPGrind", openMet:"Avaa METGrind (beta)", metD:"Kamera laskee metconin toistot", repD:"Toistolaskuri – toistot, tulokset, vienti", wodD:"Treeniajastin valmentajille",
     wIntro:"Urheilijat seuraavat tätä kelloa omilla puhelimillaan – hiihtolaitteilla, soutulaitteella tai salin toisella puolella. Tabletti tai TV liittyy samalla tavalla.",
     wCreate:"Luo WOD-koodi (olen valmentaja)", wCodePh:"Koodi", wJoin:"Liity",
     wCoach:"Urheilijat: avaa WODGrind → WOD-koodi, kirjoita tämä koodi ja paina Liity.",
@@ -477,11 +479,11 @@ function renderSetup(){
   $("hCd").textContent=t("cd"); $("cdSel").value=String(S.countdown);
   $("hHelp").textContent=t("help"); $("helpLink").textContent=t("helpLink"); $("helpLink").href=`help/${S.lang}.html`;
   $("about").textContent=fill(t("about"),VERSION);
-  $("hApps").textContent=t("apps"); $("appsNote").textContent=t("appsNote"); $("appsRepT").textContent=t("openRep"); $("appsRep").href=REP_URL;
+  $("hApps").textContent=t("apps"); $("appsNote").textContent=t("appsNote"); $("appsRepT").textContent=t("openRep"); $("appsRep").href=REP_URL; $("appsMetT").textContent=t("openMet"); $("appsMet").href=MET_URL;
   $("hBug").textContent=t("bug"); $("bugNote").textContent=t("bugNote"); $("bugGh").textContent=t("bugGh");
   $("bugCopy").textContent=t("bugCopy"); $("bugClear").textContent=t("bugClear"); $("bugInfo").textContent=t("bugLines")(GrindDiag.lines().length);
   $("hNew").textContent=t("whatsNew"); newFill();
-  $("appRepD").textContent=t("repD"); $("appWodD").textContent=t("wodD"); $("appRep").href=REP_URL;
+  $("appRepD").textContent=t("repD"); $("appWodD").textContent=t("wodD"); $("appRep").href=REP_URL; $("appMetD").textContent=t("metD"); $("appMet").href=MET_URL;
   $("updGo").textContent=t("upd"); $("updLater").textContent=t("later"); vShow();
 }
 $("uiLang").onchange=e=>{ S.lang=e.target.value; save(); renderAll(); };
@@ -828,6 +830,7 @@ function renderWod(){
 /* ================= What's new and update notice (as in REPGrind) =================
    NEWS: newest first, [version, English lines, Finnish lines]. Keep it in step with CHANGELOG.md. */
 const NEWS=[
+  ["0.2.11",["METGrind (beta) is in the apps menu and in Setup: the phone camera counts the reps of a metcon."],["METGrind (beta) on sovellusvalikossa ja Asetuksissa: puhelimen kamera laskee metconin toistot."]],
   ["0.2.10",["What's new shows the 3 latest updates; older ones open with Show older versions."],["Uutta-luettelo näyttää 3 uusinta päivitystä; vanhemmat avautuvat Näytä vanhemmat versiot -painikkeesta."]],
   ["0.2.9",["The rep counter app is now called REPGrind everywhere (in the apps menu, Setup and the user guide), matching WODGrind and METGrind."],["Toistolaskurisovelluksen nimi on nyt kaikkialla REPGrind (sovellusvalikossa, asetuksissa ja käyttöohjeessa), kuten WODGrind ja METGrind."]],
   ["0.2.8",["The workout name (e.g. TABATA · 20/10 × 8) is shown big above the clock."],["Treenin nimi (esim. TABATA · 20/10 × 8) näkyy isona kellon yläpuolella."]],
@@ -847,6 +850,7 @@ const NEWS=[
 ];
 const PAGES=/github\.io$/.test(location.hostname);
 const REP_URL=(PAGES?location.origin:"https://rextherunt77.github.io")+"/repgrind/";
+const MET_URL=(PAGES?location.origin:"https://rextherunt77.github.io")+"/metgrind/";
 const vNum=v=>String(v).split(/[.-]/).map(Number);
 const vNewer=(a,b)=>{ const x=vNum(a),y=vNum(b); for(let i=0;i<3;i++) if((x[i]||0)!==(y[i]||0)) return (x[i]||0)>(y[i]||0); return false; };
 const escH=x=>String(x).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
